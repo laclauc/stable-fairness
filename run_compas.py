@@ -35,7 +35,7 @@ from shared.stats_tests import run_wilcoxon_suite
 DATA_PATH  = ROOT / "datasets" / "compas" / "Processed_Compas.csv"
 N_SEEDS    = 20
 PI_GRID    = np.linspace(0.0, 1.0, 200)
-RUN_SHIFTY = True
+RUN_SHIFTY = False
 
 SOCP_DP_PARAMS = dict(K=30, pi_bar=0.02, m=60, delta=1e-5,  C=1.0, constraint="DP")
 SOCP_EO_PARAMS = dict(K=30, pi_bar=0.02, m=60, delta=1e-4,  C=1.0, constraint="EO")
