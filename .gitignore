@@ -1,0 +1,17 @@
+
+.venv/
+__pycache__/
+*.pyc
+adult_pareto_heatmap_*.png
+adult_pareto_heatmap_*.pdf
+data/
+# Figures générées
+figures/
+results/
+# Shifty
+Fairness-Guarantees-under-Demographic-Shift/
+# macOS
+.DS_Store
+**/.DS_Store
+ 
+
