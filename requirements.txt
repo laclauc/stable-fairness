@@ -1,8 +1,8 @@
-numpy
-scikit-learn
-matplotlib
-cvxpy
-fairlearn
-scipy
-pandas
-folktables
+cvxpy==1.7.5
+fairlearn==0.10.0
+folktables==0.0.12
+matplotlib==3.9.4
+numpy==1.26.4
+pandas==2.2.0
+scikit-learn==1.6.1
+scipy==1.13.1
