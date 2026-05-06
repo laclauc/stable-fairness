@@ -54,10 +54,9 @@ def plot_phi_panel(ax, curves_erm, curves_eg, curves_socp, pi_grid, t_mean,
     ax.legend(
         fontsize=FS_LEGEND,
         loc="lower center",
-        bbox_to_anchor=(0.5, 1.01),  # centré, juste au-dessus de l'axe
+        bbox_to_anchor=(0.5, 1.01), 
         framealpha=0.9,
-        ncol=3,                      # ligne 1 : ERM / ERM+Constraint / STABLE
-                                     # ligne 2 : PostProc / Shifty (centrés)
+        ncol=3,
         borderaxespad=0.0,
     )
 
@@ -91,7 +90,7 @@ def plot_heatmap(ax, data, cmap, vmin, vmax, delta_labels, pibar_labels):
 
 def save_fig(fig, name, fig_dir):
     fig.tight_layout()
-    fig.subplots_adjust(top=0.82)   # réserve de la place pour la légende au-dessus
+    fig.subplots_adjust(top=0.82)
     fig.savefig(fig_dir / f"{name}.pdf", dpi=300, bbox_inches="tight")
     fig.savefig(fig_dir / f"{name}.png", dpi=150, bbox_inches="tight")
     plt.close(fig)

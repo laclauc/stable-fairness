@@ -29,7 +29,6 @@ stability-fairness/
 ├── run_adult.py                    # Multi-seed eval + figures + stat tests (Adult)
 ├── run_compas.py                   # Multi-seed eval + figures + stat tests (COMPAS)
 ├── run_acs.py                      # Geographic robustness + figures (ACS/Folktables)
-├── run_synthetic.py                # Phi curves + Pareto frontiers (synthetic data)
 ├── tuning.py                       # Hyperparameter grid search (all datasets)
 ├── t-study.py                      # Impact of t for the adult dataset
 ├── figures/                        # Output figures (created automatically)

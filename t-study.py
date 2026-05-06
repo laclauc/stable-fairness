@@ -128,7 +128,6 @@ for c in ("DP", "EO"):
         means, stds = [], []
         for t in all_t:
             if np.isclose(t, t_erm_m):
-                # aggregate all seeds' t_ERM results regardless of exact t
                 vals = socp_df[socp_df["is_tERM"]][metric].values
             else:
                 vals = socp_df[(~socp_df["is_tERM"]) & np.isclose(socp_df["t"], t)][metric].values
@@ -138,13 +137,10 @@ for c in ("DP", "EO"):
         means = np.array(means)
         stds  = np.array(stds)
 
-        # Dashed connecting line + shaded std band
         line, = ax.plot(all_t, means, color=SOCP_COLOR, linestyle="--", linewidth=1.5, zorder=1)
         ax.fill_between(all_t, means - stds, means + stds, color=SOCP_COLOR, alpha=0.12, zorder=0)
-        # Markers on top
         ax.plot(all_t, means, "*", color=SOCP_COLOR, markersize=MS, zorder=3)
 
-        # ERM horizontal reference + std band
         erm_val = float(erm_df[metric].mean())
         erm_std = float(erm_df[metric].std())
         hl = ax.axhline(erm_val, color=ERM_COLOR, lw=2, ls="--", label="ERM")
@@ -152,7 +148,6 @@ for c in ("DP", "EO"):
                         erm_val - erm_std, erm_val + erm_std,
                         color=ERM_COLOR, alpha=0.12, zorder=0)
 
-        # Vertical dotted line + std band + value annotation at mean t_ERM
         ax.axvspan(t_erm_m - t_erm_s, t_erm_m + t_erm_s, color="black", alpha=0.08, zorder=0)
         ax.axvline(t_erm_m, color="black", lw=1.5, ls=":", zorder=1)
         ax.annotate(f"$t_{{\\rm ERM}}={t_erm_m:.2f}$",

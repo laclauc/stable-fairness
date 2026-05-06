@@ -437,13 +437,6 @@ class PostProcessor:
             reg = reg + mu_reg[k] * (w - w_reg[k])
         return self._stoch_grad_idx(w, i) + reg
 
-    # ------------------------------------------------------------------
-    # Optimization algorithms — VERBATIM PORTS of the reference
-    # `PostProc.py` file (Chzhen, Hebiri & Taturyan 2025 reference
-    # implementation).  Structure, bracketing, and even the apparent
-    # `mu_reg.append(w)` quirk are preserved.
-    # ------------------------------------------------------------------
-
     def _SGD(self, X, w_init, alpha, T, w_reg, mu_reg, rng):
         """Reference ``SGD``  (line 213)."""
         w = np.asarray(w_init, dtype=float).copy()
@@ -516,7 +509,7 @@ class PostProcessor:
 
         if sc is False:
             w_reg.append(w)
-            mu_reg.append(w)     # <-- verbatim from reference (appends vector, not scalar)
+            mu_reg.append(w)
 
         S1 = int(np.floor(np.log2(L / mu)))
         for s in range(1, S1 + 1):
@@ -563,10 +556,6 @@ class PostProcessor:
         dim = 2 * self.S_num * self.K
         return self._SGD3(X, np.zeros(dim), mu, L, self.T, method='ACSA2', rng=rng)
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
-
     def fit(self, X: np.ndarray, seed: int = 0):
         """
         Run the dual SGD on the **unlabelled** pool.
@@ -581,9 +570,6 @@ class PostProcessor:
         """
         rng = np.random.default_rng(seed)
 
-        # ---- choose beta ------------------------------------------------
-        # beta = "auto"  ->  0.5 * sqrt(N_unlab) * log2(N_unlab)
-        # else           ->  use the explicit value supplied by the caller.
         N = len(X)
         self.beta_ = (
             self._default_beta_from_N(N)
