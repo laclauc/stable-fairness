@@ -33,10 +33,10 @@ from shared.plotting import save_fig
 
 SURVEY_YEAR = "2018"
 TRAIN_STATE = "CA"
-N_SEEDS     = 15
+N_SEEDS     = 5
 TRAIN_N     = 80_000
 EVAL_N      = 30_000
-RUN_SHIFTY  = False
+RUN_SHIFTY  = True
 
 SOCP_PARAMS = dict(K=30, pi_bar=0.02, m=60, delta=1e-5, C=1.0,
                    task="classification", constraint="DP")

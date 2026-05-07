@@ -23,25 +23,3 @@ def load_compas(data_path):
     enc = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
     X   = np.hstack([df[num].values.astype(float), enc.fit_transform(df[cat])])
     return X, G, y
-
-
-def load_german(data_path):
-    df     = pd.read_csv(data_path)
-    G      = df["Sex"].values.astype(int)
-    y      = df["Type"].values.astype(int)
-    X_cols = [c for c in df.columns if c not in ["Sex", "Type"]]
-    return df[X_cols].values.astype(float), G, y
-
-
-def load_communities(data_path):
-    df   = pd.read_csv(data_path).fillna(0)
-    sens = ["racepctblack", "racePctWhite", "racePctAsian", "racePctHisp"]
-    df["race"] = df[sens].idxmax(axis=1)
-    df   = df.drop(columns=sens)
-    df   = df.drop(df[df["ViolentCrimesPerPop"] == 0].index).copy()
-    mapping = {"racePctWhite": 1, "racepctblack": 0, "racePctAsian": 0, "racePctHisp": 0}
-    df["race"] = df["race"].map(mapping)
-    y      = (df["ViolentCrimesPerPop"] >= 0.2).astype(int).values
-    G      = df["race"].values.astype(int)
-    X_cols = [c for c in df.columns if c not in ["ViolentCrimesPerPop", "race"]]
-    return df[X_cols].values.astype(float), G, y
