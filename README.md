@@ -1,124 +1,96 @@
-# Fairness through Distributional Stability
+# STABLE — fairness through distributional stability
 
-Code for the paper *A Comprehensive View of Fairness through Distributional Stability* under review at NeurIPS 2026.
+Code for the NeurIPS 2026 paper *A Comprehensive View of Fairness through
+Distributional Stability*.
 
-## Setup
+A classifier trained under a fairness constraint is fair at the group
+proportions of its training data, but its prediction rate can drift once it is
+deployed in a population with a different composition. STABLE asks the
+prediction rate $\Phi(h;\pi')$ to stay close to a target $t$ for every
+deployment proportion $\pi'$ in a range $[\bar\pi, 1-\bar\pi]$, and learns a
+convex mixture of logistic regressions by solving a second-order cone program.
+
+```python
+from stable import SOCPFairnessMixture
+
+model = SOCPFairnessMixture(pi_bar=0.02, delta=1e-5, t=0.2, constraint="DP")
+model.fit(X_train, G_train, y_train)
+p = model.predict_proba(X_test)        # P(y = 1 | x)
+```
+
+`notebooks/demo.ipynb` walks through a complete example on Adult.
+
+## Installation
+
+Python ≥ 3.9.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate  # Mac/Linux
-
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Repository structure
+Adult and COMPAS are read from `data/` (see `data/README.md`); ACS Income is
+downloaded by [folktables](https://github.com/socialfoundations/folktables) on
+first use.
+
+## Repository
 
 ```
-stable-fairness-public/
-├── utils.py                        # Core: SOCP mixture, ERM baseline, importance weights, phi/unfairness-gap functionals
-├── postproc.py                     # PostProcessor: post-processing baseline (Chzhen, Hebiri & Taturyan 2025)
-├── shifty.py                       # Shifty-ttest integration (Giguere et al., ICLR 2022)
-├── shared/
-│   ├── evaluation.py               # Shared helpers: eval_stats, make_phi_curve, compute_targets, ...
-│   ├── plotting.py                 # Shared helpers: plot_phi_panel, plot_heatmap, ...
-│   └── stats_tests.py              # Wilcoxon paired significance tests
-├── datasets/
-│   ├── loaders.py                  # load_adult, load_compas
-│   ├── adult/
-│   │   └── adult_norm.csv
-│   └── compas/
-│       └── Processed_Compas.csv
-├── run_adult.py                    # Multi-seed eval + figures + stat tests (Adult)
-├── run_compas.py                   # Multi-seed eval + figures + stat tests (COMPAS)
-├── run_acs.py                      # Geographic robustness experiment (ACS/Folktables)
-├── figure-acs.py                   # Standalone ACS figures from results/acs_geographic_robustness.csv
-├── tuning.py                       # Hyperparameter grid search — δ × π̄ heatmap (all datasets)
-├── t-study.py                      # Impact of t on SOCP fairness (Adult)
-├── figures/                        # Output figures (created automatically)
-├── results/                        # Pre-computed results used in the paper
-│   ├── adult_multiseed_results.csv
-│   ├── compas_multiseed_results.csv
-│   ├── acs_geographic_robustness.csv
-│   ├── adult_phi_curves_DP.npy
-│   ├── adult_phi_curves_EO.npy
-│   ├── compas_phi_curves_DP.npy
-│   ├── compas_phi_curves_EO.npy
-│   └── t_study_adult.csv
-├── requirements.txt
-└── README.md
+stable/            the method
+  core.py            SOCP mixture (Algorithm 1), importance weights, Phi, U
+  dro.py             STABLE_DRO ablation (SA-DRO-style objective, same dictionary)
+  metrics.py         evaluation: accuracy, U(h), deployment gap, level, Phi(h; 0/1)
+  data.py            Adult, COMPAS and ACS loaders
+experiments/       each script writes one CSV in results/
+plots/             each script reads results/ and writes one figure in figures/
+notebooks/demo.ipynb
 ```
 
-## Reproducing experiments
+## Reproducing the paper
 
-**Main experiments:**
-```bash
-python run_adult.py    # note: 20 seeds can take some time
-python run_compas.py
-python run_acs.py      # note: 20 seeds can take some time
+Experiments write to `results/`, figures and tables to `figures/`. Seeds are
+indexed identically across runs, so runs of different methods can be merged
+(`--inputs a.csv+b.csv` in the plotting scripts). STABLE and STABLE_DRO use the
+$\bar\pi$ and dictionary selected on validation data by `experiments/tuning.py`
+(`SELECTED` in `experiments/methods.py`); the fairness weight $\lambda$ of
+STABLE_DRO is swept on its own grid per setting (`LAM_GRID`, same file).
+Figure and table numbers refer to the camera-ready version.
+
+| Paper | Command |
+|---|---|
+| Pareto frontiers, Adult / COMPAS (Fig. 1) | `python experiments/pareto.py --dataset {adult,compas} --constraint {DP,EO} --seeds 10`<br>`python plots/pareto_main.py` |
+| Prediction rate under demographic shift (Fig. 2) | `python plots/shift_curves.py` (from the same results) |
+| Geographic generalization on ACS (Fig. 3 and 7, Table 4) | `python experiments/acs_pareto.py --constraint {DP,EO} --seeds 5`<br>`python plots/acs_geo.py --constraint {DP,EO}`<br>`python plots/tables.py acs` |
+| Hyperparameter and dictionary selection (Table 3), sensitivity (Fig. 4) | `python experiments/tuning.py --dataset {adult,compas,acs} --constraint {DP,EO}`<br>`python plots/heatmaps.py --dataset adult --constraint DP` |
+| Dictionary ablation (Fig. 5) | `python experiments/pareto.py --dataset {adult,compas} --constraint {DP,EO} --seeds 10 --methods STABLE_CF,STABLE_noCF --tag _cf_ablation`<br>`python plots/pareto_main.py --methods STABLE_CF,STABLE_noCF --out cf_ablation --inputs adult:DP=results/pareto_adult_DP_cf_ablation.csv ...` |
+| Comparison with Shifty (Fig. 6) | `python experiments/pareto.py --dataset {adult,compas} --constraint {DP,EO} --seeds 10 --methods PostProc,Shifty --tag _extra`<br>`python plots/pareto_main.py --methods STABLE,EG,PostProc,DRO,Shifty --out pareto_shifty --inputs adult:DP=results/pareto_adult_DP.csv+results/pareto_adult_DP_extra.csv ...` |
+| Effect of the target $t$ (Fig. 8) | `python experiments/t_study.py`<br>`python plots/t_study.py` |
+| Running times (Table 2) | `python plots/tables.py runtime` (from the results above) |
+
+PostProc and Shifty appear in the figures and tables only if they were run (see
+*Baselines*) and merged with `--inputs`.
+
+### Baselines
+
+ERM + constraint is fairlearn's `ExponentiatedGradient`. The paper also
+compares to **PostProc** (Chzhen et al., 2025) and **Shifty** (Giguere et
+al., ICLR 2022), whose code is not distributed here. To include them, place
+the authors' implementations on the Python path as modules `postproc`
+(class `PostProcessor`) and `shifty` (functions `run_shifty_dp`,
+`run_shifty_eo`), then add them to `--methods` (`PostProc`, `Shifty`).
+
+- Shifty: https://github.com/sgiguere/Fairness-Guarantees-under-Demographic-Shift
+
+## Citation
+
+```bibtex
+@inproceedings{stable2026,
+  title     = {A Comprehensive View of Fairness through Distributional Stability},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2026}
+}
 ```
 
-Each script runs the full multi-seed evaluation, saves results to `results/`, generates
-figures to `figures/`, and prints statistical significance tests. Results are
-checkpointed after every seed — a crash only loses the current seed.
-The results present in the `results/` folder are the ones used to produce figures and tables in the paper.
+## License
 
-The number of seeds and hyperparameters are set at the top of each script.
-
-**ACS figures only (from pre-computed results):**
-```bash
-python figure-acs.py
-```
-
-**Hyperparameter search (δ × π̄ heatmap):**
-```bash
-python tuning.py --dataset adult --constraint DP
-python tuning.py --dataset adult --constraint EO
-```
-
-**Effect of t on fairness (Adult):**
-```bash
-python t-study.py
-```
-
-## Shifty setup
-
-Download and extract the Shifty repository next to `shifty.py`:
-`https://github.com/sgiguere/Fairness-Guarantees-under-Demographic-Shift`
-```
-stable-fairness-public/
-└── Fairness-Guarantees-under-Demographic-Shift/
-    └── Python/
-        ├── utils/
-        ├── datasets/
-        └── core/
-```
-
-Set `RUN_SHIFTY = False` in any `run_*.py` to skip Shifty and save time.
-
-## Utils API
-
-### SOCPFairnessMixture
-
-```python
-from utils import SOCPFairnessMixture, ERMBaseline, phi_dp, phi_eo, unfairness_gap_dp, unfairness_gap_eo
-
-# DP constraint
-socp = SOCPFairnessMixture(K=30, pi_bar=0.05, m=60, delta=5e-5, t=0.5, constraint="DP")
-socp.fit(X_train, G_train, y_train, seed=42)
-
-# EO constraint
-socp_eo = SOCPFairnessMixture(K=30, pi_bar=0.15, m=60, delta=1e-5, t=0.54, constraint="EO")
-socp_eo.fit(X_train, G_train, y_train, seed=42)
-
-# Phi curve
-phi = socp.phi_curve(X_test, G_test, pi_grid)                # DP
-phi = socp_eo.phi_curve(X_test, G_test, pi_grid, Y=y_test)  # EO
-
-# Unfairness gap
-u = unfairness_gap_dp(socp.predict_proba(X_test), G_test)
-u = unfairness_gap_eo(socp_eo.predict_proba(X_test), G_test, y_test)
-```
-
-## Dependencies
-
-See `requirements.txt`.
+MIT, see `LICENSE`.
