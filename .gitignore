@@ -4,7 +4,6 @@ __pycache__/
 *.pyc
 adult_pareto_heatmap_*.png
 adult_pareto_heatmap_*.pdf
-data/
 # Figures générées
 figures/
 results/
