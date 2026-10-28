@@ -86,6 +86,7 @@ the authors' implementations on the Python path as modules `postproc`
 ```bibtex
 @inproceedings{stable2026,
   title     = {A Comprehensive View of Fairness through Distributional Stability},
+  author    = {Taturyan, Gayane and Laclau, Charlotte and Cl{\'e}men{\c{c}}on, St{\'e}phan},
   booktitle = {Advances in Neural Information Processing Systems},
   year      = {2026}
 }
