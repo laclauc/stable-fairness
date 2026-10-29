@@ -66,8 +66,6 @@ Figure and table numbers refer to the camera-ready version.
 | Effect of the target $t$ (Fig. 8) | `python experiments/t_study.py`<br>`python plots/t_study.py` |
 | Running times (Table 2) | `python plots/tables.py runtime` (from the results above) |
 
-PostProc and Shifty appear in the figures and tables only if they were run (see
-*Baselines*) and merged with `--inputs`.
 
 ### Baselines
 
@@ -78,7 +76,6 @@ the authors' implementations on the Python path as modules `postproc`
 (class `PostProcessor`) and `shifty` (functions `run_shifty_dp`,
 `run_shifty_eo`), then add them to `--methods` (`PostProc`, `Shifty`).
 
-- Shifty: https://github.com/sgiguere/Fairness-Guarantees-under-Demographic-Shift
 
 ## Citation
 
