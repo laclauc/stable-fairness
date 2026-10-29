@@ -63,7 +63,6 @@ Figure and table numbers refer to the camera-ready version.
 | Geographic generalization on ACS (Fig. 3 and 7, Table 4) | `python experiments/acs_pareto.py --constraint {DP,EO} --seeds 5`<br>`python plots/acs_geo.py --constraint {DP,EO}`<br>`python plots/tables.py acs` |
 | Hyperparameter and dictionary selection (Table 3), sensitivity (Fig. 4) | `python experiments/tuning.py --dataset {adult,compas,acs} --constraint {DP,EO}`<br>`python plots/heatmaps.py --dataset adult --constraint DP` |
 | Dictionary ablation (Fig. 5) | `python experiments/pareto.py --dataset {adult,compas} --constraint {DP,EO} --seeds 10 --methods STABLE_CF,STABLE_noCF --tag _cf_ablation`<br>`python plots/pareto_main.py --methods STABLE_CF,STABLE_noCF --out cf_ablation --inputs adult:DP=results/pareto_adult_DP_cf_ablation.csv ...` |
-| Comparison with Shifty (Fig. 6) | `python experiments/pareto.py --dataset {adult,compas} --constraint {DP,EO} --seeds 10 --methods PostProc,Shifty --tag _extra`<br>`python plots/pareto_main.py --methods STABLE,EG,PostProc,DRO,Shifty --out pareto_shifty --inputs adult:DP=results/pareto_adult_DP.csv+results/pareto_adult_DP_extra.csv ...` |
 | Effect of the target $t$ (Fig. 8) | `python experiments/t_study.py`<br>`python plots/t_study.py` |
 | Running times (Table 2) | `python plots/tables.py runtime` (from the results above) |
 
